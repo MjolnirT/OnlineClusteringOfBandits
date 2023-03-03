@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 from utlis import edge_probability, is_power2, isInvertible
-from Base import LinUCB_IND
+from BASE import LinUCB_IND
 
 class Cluster:
     def __init__(self, users, S, b, N):
@@ -54,7 +54,7 @@ class CLUB(LinUCB_IND):
             for j in A:
                 if self.N[i] and self.N[j] and self._if_split(self.theta[i] - self.theta[j], self.N[i], self.N[j]):
                     self.G.remove_edge(i, j)
-                    print(i,j)
+                    print('UPDATE: remove edge ({},{})'.format(i, j))
                     update_clusters = True
 
         if update_clusters:

@@ -1,6 +1,6 @@
 import numpy as np
 from utlis import isInvertible
-from Base import LinUCB_IND
+from BASE import LinUCB_IND
 
 class Cluster:
     def __init__(self, users, S, b, N, checks):
