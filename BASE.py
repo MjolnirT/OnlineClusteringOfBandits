@@ -36,7 +36,8 @@ class Base:
     def run(self, envir):
         for t in range(self.T):
             if t % 5000 == 0:
-                print(t // 5000, end = ' ')
+                print("     Stage : " + str(t) + "/" + str(self.T))
+                # print(t // 5000, end = ' ')
             self.I = envir.generate_users()
             for i in self.I:
                 items = envir.get_items()
