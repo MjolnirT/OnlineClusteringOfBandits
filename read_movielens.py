@@ -55,7 +55,7 @@ def get_reduced_matrix(num_users, num_items, filename):
 	data3 = extract_users(num_users, data2)
 	return data3.toarray()
 
-reduced_matrix = get_reduced_matrix(num_users = 1000, num_items = 1000, filename = 'MovieLens/ratings.csv')
+reduced_matrix = get_reduced_matrix(num_users = 1000, num_items = 1000, filename = 'rating.csv')
 print(reduced_matrix.shape)
 np.save('ml_1000user_1000item', reduced_matrix)
 X = np.load('ml_1000user_1000item.npy')

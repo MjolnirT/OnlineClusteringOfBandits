@@ -15,6 +15,7 @@ class Base:
         return np.sqrt(self.d * np.log(1 + N / self.d) + 4 * np.log(t) + np.log(2)) + 1
 
     def _select_item_ucb(self, S, Sinv, theta, items, N, t):
+        # UCB calculation does not have the squared root
         return np.argmax(np.dot(items, theta) + self._beta(N, t) * (np.matmul(items, Sinv) * items).sum(axis = 1))
 
     def recommend(self, i, items, t):
