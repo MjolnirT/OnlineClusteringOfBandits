@@ -99,7 +99,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
 
 if __name__== "__main__":
     # synthetic experiment with user number is 10**3 and m=10 clusters
-    # main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [0])
+    main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [2])
 
     # main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='ml_1000user_d20.npy')
-    main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='yelp_1000user_d20.npy')
+    # main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='yelp_1000user_d20.npy')
