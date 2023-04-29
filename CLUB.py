@@ -3,23 +3,25 @@ import numpy as np
 from utlis import edge_probability, is_power2, isInvertible
 from BASE import LinUCB_IND
 
+
 class Cluster:
     def __init__(self, users, S, b, N):
-        self.users = users # a list/array of users
+        self.users = users  # a list/array of users
         self.S = S
         self.b = b
         self.N = N
         self.Sinv = np.linalg.inv(self.S)
         self.theta = np.matmul(self.Sinv, self.b)
 
+
 class CLUB(LinUCB_IND):
     # random_init: use random initialization or not
-    def __init__(self, nu, d, T, edge_probability = 1):
+    def __init__(self, nu, d, T, edge_probability=1):
         super(CLUB, self).__init__(nu, d, T)
         self.nu = nu
         # self.alpha = 4 * np.sqrt(d) # parameter for cut edge
         self.G = nx.gnp_random_graph(nu, edge_probability)
-        self.clusters = {0:Cluster(users=range(nu), S=np.eye(d), b=np.zeros(d), N=0)}
+        self.clusters = {0: Cluster(users=range(nu), S=np.eye(d), b=np.zeros(d), N=0)}
         self.cluster_inds = np.zeros(nu)
 
         self.num_clusters = np.zeros(T)
@@ -36,15 +38,19 @@ class CLUB(LinUCB_IND):
         self.clusters[c].b += y * x
         self.clusters[c].N += 1
 
-        self.clusters[c].Sinv, self.clusters[c].theta = self._update_inverse(self.clusters[c].S, self.clusters[c].b, self.clusters[c].Sinv, x, self.clusters[c].N)
+        self.clusters[c].Sinv, self.clusters[c].theta = self._update_inverse(self.clusters[c].S, self.clusters[c].b,
+                                                                             self.clusters[c].Sinv, x,
+                                                                             self.clusters[c].N)
 
     def _if_split(self, theta, N1, N2):
         # alpha = 2 * np.sqrt(2 * self.d)
         alpha = 1
+
         def _factT(T):
             return np.sqrt((1 + np.log(1 + T)) / (1 + T))
-        return np.linalg.norm(theta) >  alpha * (_factT(N1) + _factT(N2))
- 
+
+        return np.linalg.norm(theta) > alpha * (_factT(N1) + _factT(N2))
+
     def update(self, t):
         update_clusters = False
         for i in self.I:
@@ -59,11 +65,12 @@ class CLUB(LinUCB_IND):
 
         if update_clusters:
             C = set()
-            for i in self.I: # suppose there is only one user per round
+            for i in self.I:  # suppose there is only one user per round
                 C = nx.node_connected_component(self.G, i)
                 if len(C) < len(self.clusters[c].users):
                     remain_users = set(self.clusters[c].users)
-                    self.clusters[c] = Cluster(list(C), S=sum([self.S[k]-np.eye(self.d) for k in C])+np.eye(self.d), b=sum([self.b[k] for k in C]), N=sum([self.N[k] for k in C]))
+                    self.clusters[c] = Cluster(list(C), S=sum([self.S[k] - np.eye(self.d) for k in C]) + np.eye(self.d),
+                                               b=sum([self.b[k] for k in C]), N=sum([self.N[k] for k in C]))
 
                     remain_users = remain_users - set(C)
                     c = max(self.clusters) + 1
@@ -71,7 +78,9 @@ class CLUB(LinUCB_IND):
                         j = np.random.choice(list(remain_users))
                         C = nx.node_connected_component(self.G, j)
 
-                        self.clusters[c] = Cluster(list(C), S=sum([self.S[k]-np.eye(self.d) for k in C])+np.eye(self.d), b=sum([self.b[k] for k in C]), N=sum([self.N[k] for k in C]))
+                        self.clusters[c] = Cluster(list(C),
+                                                   S=sum([self.S[k] - np.eye(self.d) for k in C]) + np.eye(self.d),
+                                                   b=sum([self.b[k] for k in C]), N=sum([self.N[k] for k in C]))
                         for j in C:
                             self.cluster_inds[j] = c
 
@@ -79,7 +88,7 @@ class CLUB(LinUCB_IND):
                         remain_users = remain_users - set(C)
 
             # print(len(self.clusters))
-            
+
         self.num_clusters[t] = len(self.clusters)
 
         # if t % 1000 == 0:

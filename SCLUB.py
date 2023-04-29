@@ -2,14 +2,15 @@ import numpy as np
 from utlis import isInvertible
 from BASE import LinUCB_IND
 
+
 class Cluster:
     def __init__(self, users, S, b, N, checks):
-        self.users = users # a list/array of users
+        self.users = users  # a list/array of users
         self.S = S
         self.b = b
         self.N = N
         self.checks = checks
-        
+
         self.Sinv = np.linalg.inv(self.S)
         self.theta = np.matmul(self.Sinv, self.b)
         self.checked = len(self.users) == sum(self.checks.values())
@@ -17,12 +18,14 @@ class Cluster:
     def update_check(self, i):
         self.checks[i] = True
         self.checked = len(self.users) == sum(self.checks.values())
-        
+
+
 class SCLUB(LinUCB_IND):
     def __init__(self, nu, d, num_stages):
         super(SCLUB, self).__init__(nu, d, 2 ** num_stages - 1)
 
-        self.clusters = {0:Cluster(users=[i for i in range(nu)], S=np.eye(d), b=np.zeros(d), N=0, checks={i:False for i in range(nu)})}
+        self.clusters = {0: Cluster(users=[i for i in range(nu)], S=np.eye(d), b=np.zeros(d), N=0,
+                                    checks={i: False for i in range(nu)})}
         self.cluster_inds = np.zeros(nu)
 
         self.num_stages = num_stages
@@ -32,14 +35,14 @@ class SCLUB(LinUCB_IND):
 
     def _init_each_stage(self):
         for c in self.clusters:
-            self.clusters[c].checks = {i:False for i in self.clusters[c].users}
+            self.clusters[c].checks = {i: False for i in self.clusters[c].users}
             self.clusters[c].checked = False
-            
+
     def recommend(self, i, items, t):
         cluster = self.clusters[self.cluster_inds[i]]
         return self._select_item_ucb(cluster.S, cluster.Sinv, cluster.theta, items, cluster.N, t)
 
-    def store_info(self, i, x, y, t, r, br = 1):
+    def store_info(self, i, x, y, t, r, br=1):
         super(SCLUB, self).store_info(i, x, y, t, r, br)
 
         c = self.cluster_inds[i]
@@ -47,18 +50,20 @@ class SCLUB(LinUCB_IND):
         self.clusters[c].b += y * x
         self.clusters[c].N += 1
 
-        self.clusters[c].Sinv, self.clusters[c].theta = self._update_inverse(self.clusters[c].S, self.clusters[c].b, self.clusters[c].Sinv, x, self.clusters[c].N)
+        self.clusters[c].Sinv, self.clusters[c].theta = self._update_inverse(self.clusters[c].S, self.clusters[c].b,
+                                                                             self.clusters[c].Sinv, x,
+                                                                             self.clusters[c].N)
 
     def _factT(self, T):
-            return np.sqrt((1 + np.log(1 + T)) / (1 + T))
+        return np.sqrt((1 + np.log(1 + T)) / (1 + T))
 
     def _split_or_merge(self, theta, N1, N2, split=True):
         # alpha = 2 * np.sqrt(2 * self.d)
         alpha = 1
         if split:
-            return np.linalg.norm(theta) >  alpha * (self._factT(N1) + self._factT(N2))
+            return np.linalg.norm(theta) > alpha * (self._factT(N1) + self._factT(N2))
         else:
-            return np.linalg.norm(theta) <  alpha * (self._factT(N1) + self._factT(N2)) / 2
+            return np.linalg.norm(theta) < alpha * (self._factT(N1) + self._factT(N2)) / 2
 
     def _cluster_avg_freq(self, c, t):
         return self.clusters[c].N / (len(self.clusters[c].users) * t)
@@ -68,9 +73,9 @@ class SCLUB(LinUCB_IND):
         #     return np.sqrt((np.log(4) + 4 * np.log(t)) / (2*t))
         alpha_p = np.sqrt(2)
         if split:
-            return np.abs(p1-p2) > alpha_p * self._factT(t)
+            return np.abs(p1 - p2) > alpha_p * self._factT(t)
         else:
-            return np.abs(p1-p2) < alpha_p * self._factT(t) / 2
+            return np.abs(p1 - p2) < alpha_p * self._factT(t) / 2
 
     def split(self, i, t):
         c = self.cluster_inds[i]
@@ -78,7 +83,9 @@ class SCLUB(LinUCB_IND):
 
         cluster.update_check(i)
 
-        if self._split_or_merge_p(self.N[i]/(t+1), self._cluster_avg_freq(c, t+1), t+1, split=True) or self._split_or_merge(self.theta[i] - cluster.theta, self.N[i], cluster.N, split=True):
+        if self._split_or_merge_p(self.N[i] / (t + 1), self._cluster_avg_freq(c, t + 1), t + 1,
+                                  split=True) or self._split_or_merge(self.theta[i] - cluster.theta, self.N[i],
+                                                                      cluster.N, split=True):
 
             def _find_available_index():
                 cmax = max(self.clusters)
@@ -88,7 +95,7 @@ class SCLUB(LinUCB_IND):
                 return cmax + 1
 
             cnew = _find_available_index()
-            self.clusters[cnew] = Cluster(users=[i],S=self.S[i],b=self.b[i],N=self.N[i],checks={i:True})
+            self.clusters[cnew] = Cluster(users=[i], S=self.S[i], b=self.b[i], N=self.N[i], checks={i: True})
             self.cluster_inds[i] = cnew
 
             cluster.users.remove(i)
@@ -108,7 +115,9 @@ class SCLUB(LinUCB_IND):
                 if c2 not in self.clusters or self.clusters[c2].checked == False:
                     continue
 
-                if self._split_or_merge(self.clusters[c1].theta - self.clusters[c2].theta, self.clusters[c1].N, self.clusters[c2].N, split=False) and self._split_or_merge_p(self._cluster_avg_freq(c1, t+1), self._cluster_avg_freq(c2, t+1), t+1, split=False):
+                if self._split_or_merge(self.clusters[c1].theta - self.clusters[c2].theta, self.clusters[c1].N,
+                                        self.clusters[c2].N, split=False) and self._split_or_merge_p(
+                        self._cluster_avg_freq(c1, t + 1), self._cluster_avg_freq(c2, t + 1), t + 1, split=False):
 
                     for i in self.clusters[c2].users:
                         self.cluster_inds[i] = c1
@@ -123,10 +132,10 @@ class SCLUB(LinUCB_IND):
 
     def run(self, envir):
         for s in range(self.num_stages):
-            print(s, end = ' ')
+            print(s, end=' ')
             for t in range(2 ** s):
                 if t % 5000 == 0:
-                    print(t // 5000, end = ' ')
+                    print(t // 5000, end=' ')
 
                 self._init_each_stage()
                 tau = 2 ** s + t - 1
@@ -147,5 +156,3 @@ class SCLUB(LinUCB_IND):
                 self.num_clusters[tau] = len(self.clusters)
 
         print()
-
-        

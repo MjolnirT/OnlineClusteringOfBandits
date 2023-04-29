@@ -2,6 +2,7 @@ import numpy as np
 from utlis import isInvertible
 import random
 
+
 class Base:
     # Base agent for online clustering of bandits
     def __init__(self, d, T):
@@ -16,7 +17,7 @@ class Base:
 
     def _select_item_ucb(self, S, Sinv, theta, items, N, t):
         # UCB calculation does not have the squared root
-        return np.argmax(np.dot(items, theta) + self._beta(N, t) * (np.matmul(items, Sinv) * items).sum(axis = 1))
+        return np.argmax(np.dot(items, theta) + self._beta(N, t) * (np.matmul(items, Sinv) * items).sum(axis=1))
 
     def recommend(self, i, items, t):
         # items is of type np.array (L, d)
@@ -51,6 +52,7 @@ class Base:
 
         print()
 
+
 class LinUCB(Base):
     def __init__(self, d, T):
         super(LinUCB, self).__init__(d, T)
@@ -71,15 +73,16 @@ class LinUCB(Base):
 
         self.Sinv, self.theta = self._update_inverse(self.S, self.b, self.Sinv, x, t)
 
+
 class LinUCB_Cluster(Base):
     def __init__(self, indexes, m, d, T):
         super(LinUCB_Cluster, self).__init__(d, T)
         self.indexes = indexes
 
-        self.S = {i:np.eye(d) for i in range(m)}
-        self.b = {i:np.zeros(d) for i in range(m)}
-        self.Sinv = {i:np.eye(d) for i in range(m)}
-        self.theta = {i:np.zeros(d) for i in range(m)}
+        self.S = {i: np.eye(d) for i in range(m)}
+        self.b = {i: np.zeros(d) for i in range(m)}
+        self.Sinv = {i: np.eye(d) for i in range(m)}
+        self.theta = {i: np.zeros(d) for i in range(m)}
 
         self.N = np.zeros(m)
 
@@ -97,16 +100,16 @@ class LinUCB_Cluster(Base):
         self.N[j] += 1
 
         self.Sinv[j], self.theta[j] = self._update_inverse(self.S[j], self.b[j], self.Sinv[j], x, self.N[j])
-        
+
 
 class LinUCB_IND(Base):
     # each user is an independent LinUCB
     def __init__(self, nu, d, T):
         super(LinUCB_IND, self).__init__(d, T)
-        self.S = {i:np.eye(d) for i in range(nu)}
-        self.b = {i:np.zeros(d) for i in range(nu)}
-        self.Sinv = {i:np.eye(d) for i in range(nu)}
-        self.theta = {i:np.zeros(d) for i in range(nu)}
+        self.S = {i: np.eye(d) for i in range(nu)}
+        self.b = {i: np.zeros(d) for i in range(nu)}
+        self.Sinv = {i: np.eye(d) for i in range(nu)}
+        self.theta = {i: np.zeros(d) for i in range(nu)}
 
         self.N = np.zeros(nu)
 
@@ -122,5 +125,3 @@ class LinUCB_IND(Base):
         self.N[i] += 1
 
         self.Sinv[i], self.theta[i] = self._update_inverse(self.S[i], self.b[i], self.Sinv[i], x, self.N[i])
-
-
