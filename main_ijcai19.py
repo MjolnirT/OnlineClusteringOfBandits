@@ -64,7 +64,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
         run_time = time.time() - start_time
         # np.savez('club_' + uniforms[j] + '_nu' + str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed), 
         #          seed, club.rewards, club.best_rewards, run_time, club.num_clusters)
-        np.savez('club_' + uniforms[j] + '-' + filename[0:2], 
+        np.savez('club_' + uniforms[j] + '-' + filename[0:2] + 'kmeans', 
                  seed, club.rewards, club.best_rewards, run_time, club.num_clusters)
 
         print("(model) Running LinUCB")
@@ -74,7 +74,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
         run_time = time.time() - start_time
         # np.savez('linucb_' + uniforms[j] + '_nu'+ str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed), 
         #          seed, linucb.rewards, linucb.best_rewards, run_time)
-        np.savez('linucb_' + uniforms[j] + '-' + filename[0:2], 
+        np.savez('linucb_' + uniforms[j] + '-' + filename[0:2] + 'kmeans', 
                  seed, linucb.rewards, linucb.best_rewards, run_time)
 
         print("(model) Running LinUCB_IND")
@@ -84,7 +84,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
         run_time = time.time() - start_time
         # np.savez('ind_' + uniforms[j] + '_nu'+ str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed), 
         #          seed, ind.rewards, ind.best_rewards, run_time)
-        np.savez('ind_' + uniforms[j] + '-' + filename[0:2], 
+        np.savez('ind_' + uniforms[j] + '-' + filename[0:2] + 'kmeans', 
                  seed, ind.rewards, ind.best_rewards, run_time)
 
         print("(model) Running SCLUB")
@@ -94,12 +94,17 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
         run_time = time.time() - start_time
         # np.savez('sclub_' + uniforms[j] + '_nu'+ str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed), 
         #          seed, sclub.rewards, sclub.best_rewards, run_time, sclub.num_clusters)
-        np.savez('sclub_' + uniforms[j] + '-' + filename[0:2], 
+        np.savez('sclub_' + uniforms[j] + '-' + filename[0:2] + 'kmeans', 
                  seed, sclub.rewards, sclub.best_rewards, run_time, sclub.num_clusters)
 
 if __name__== "__main__":
     # synthetic experiment with user number is 10**3 and m=10 clusters
     main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [2])
 
-    # main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='ml_1000user_d20.npy')
-    # main(num_stages = 20, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='yelp_1000user_d20.npy')
+    # Using SVD
+    main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='ml_1000user_d20.npy')
+    main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='yelp_1000user_d20.npy')
+
+    # Using kmeans
+    # main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='ml_1000user_d20_m10.npy')
+    # main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='yelp_1000user_d20_m10.npy')
