@@ -1,5 +1,5 @@
 import numpy as np
-from utlis import generate_items
+from experiment import generate_items
 
 
 def get_best_reward(items, theta):
