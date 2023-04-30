@@ -37,65 +37,38 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
     uniform = list(np.ones(num_users) / num_users)
     half = get_half_frequency_vector(num_users=num_users, m=m)
     arbitrary = list(np.random.dirichlet(np.ones(num_users)))
-    ps = [uniform, half, arbitrary]
-    # in ps, ps[0] is the pdf under "uniform" setting,
-    # ps[1] is the pdf under "half" setting and ps[2] is the pdf
+    user_pmf = [uniform, half, arbitrary]
+    # in user_pmf, user_pmf[0] is the pdf under "uniform" setting,
+    # user_pmf[1] is the pdf under "half" setting and user_pmf[2] is the pdf
     # under "arbitrary" setting
 
+    path = 'dataset/'
+    model_names = ['club', 'linucb', 'linucb_ind', 'sclub']
+    models = [CLUB, LinUCB, LinUCB_IND, SCLUB]
     # iterate over three environments
-    for j in np.array(pj):
-        print("(Env)" + user_dist[j])
-        p = ps[j]
+    for dist_idx in np.array(pj):
+        print("(Env)" + user_dist[dist_idx])
+        p = user_pmf[dist_idx]
         envir = Environment(L=L, d=d, m=m, num_users=num_users, p=p, theta=theta)
 
-        print("(model) Running CLUB")
-        club = CLUB(nu=num_users, d=d, T=2 ** num_stages - 1, edge_probability=edge_probability(num_users))
-        start_time = time.time()
-        club.run(envir)
-        run_time = time.time() - start_time
-        # np.savez('club_' + user_dist[j] + '_nu' + str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed),
-        #          seed, club.rewards, club.best_rewards, run_time, club.num_clusters)
-        np.savez('club_' + user_dist[j] + '-' + filename[0:2] + 'kmeans',
-                 seed, club.rewards, club.best_rewards, run_time, club.num_clusters)
+        for model_idx, model_name in enumerate(model_names):
+            print("(model) Running " + model_name)
+            start_time = time.time()
 
-        print("(model) Running LinUCB")
-        linucb = LinUCB(d=d, T=2 ** num_stages - 1)
-        start_time = time.time()
-        linucb.run(envir)
-        run_time = time.time() - start_time
-        # np.savez('linucb_' + user_dist[j] + '_nu'+ str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed),
-        #          seed, linucb.rewards, linucb.best_rewards, run_time)
-        np.savez('linucb_' + user_dist[j] + '-' + filename[0:2] + 'kmeans',
-                 seed, linucb.rewards, linucb.best_rewards, run_time)
-
-        print("(model) Running LinUCB_IND")
-        ind = LinUCB_IND(nu=num_users, d=d, T=2 ** num_stages - 1)
-        start_time = time.time()
-        ind.run(envir)
-        run_time = time.time() - start_time
-        # np.savez('ind_' + user_dist[j] + '_nu'+ str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed),
-        #          seed, ind.rewards, ind.best_rewards, run_time)
-        np.savez('ind_' + user_dist[j] + '-' + filename[0:2] + 'kmeans',
-                 seed, ind.rewards, ind.best_rewards, run_time)
-
-        print("(model) Running SCLUB")
-        sclub = SCLUB(nu=num_users, d=d, num_stages=num_stages)
-        sstart_time = time.time()
-        sclub.run(envir)
-        run_time = time.time() - start_time
-        # np.savez('sclub_' + user_dist[j] + '_nu'+ str(num_users) + 'd' + str(d) + 'm' + str(m) + 'L' + str(L) + '_'+str(seed),
-        #          seed, sclub.rewards, sclub.best_rewards, run_time, sclub.num_clusters)
-        np.savez('sclub_' + user_dist[j] + '-' + filename[0:2] + 'kmeans',
-                 seed, sclub.rewards, sclub.best_rewards, run_time, sclub.num_clusters)
+            model = models[model_idx](nu=num_users, d=d, T=2 ** num_stages - 1, edge_probability=edge_probability(num_users))
+            model.run(envir)
+            out_filename = path + model_name + '_' + user_dist[dist_idx] + '-' + filename[0:2] + '-' + 'kmeans'
+            run_time = time.time() - start_time
+            np.savez(out_filename, seed, model.rewards, model.best_rewards, run_time, model.num_clusters)
 
 
 if __name__ == "__main__":
     # synthetic experiment with user number is 10**3 and m=10 clusters
-    main(num_stages=20, num_users=1000, d=20, m=10, L=20, pj=[2])
+    main(num_stages=10, num_users=1000, d=20, m=10, L=20, pj=[0])
 
     # Using SVD
-    main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='ml_1000user_d20.npy')
-    main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='yelp_1000user_d20.npy')
+    # main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='ml_1000user_d20.npy')
+    # main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='yelp_1000user_d20.npy')
 
     # Using kmeans
     # main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='ml_1000user_d20_m10.npy')

@@ -11,6 +11,13 @@ def generate_items(num_items, d):
     return x
 
 
+# def generate_items(num_items, d):
+#     # return a ndarray of num_items * d
+#     x = np.random.normal(0, 1, (num_items, d))
+#     x = x / np.linalg.norm(x)
+#     return x
+
+
 # generating user features by repeating the cluster features, thetam, by num_users / m times
 def get_theta(thetam, num_users, m):
     # generating theta vector
@@ -21,6 +28,7 @@ def get_theta(thetam, num_users, m):
     return theta
 
 
+# generating pmf vector for the "half" setting
 def get_half_frequency_vector(num_users, m):
     p0 = list(np.random.dirichlet(np.ones(m)))
     p = np.ones(num_users)

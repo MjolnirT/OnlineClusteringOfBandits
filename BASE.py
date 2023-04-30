@@ -5,12 +5,17 @@ import random
 
 class Base:
     # Base agent for online clustering of bandits
-    def __init__(self, d, T):
+    def __init__(self, d, T, nu=None, edge_probability=None):
         self.d = d
         self.T = T
         # self.beta = np.sqrt(self.d * np.log(self.T / self.d)) # parameter for select item
         self.rewards = np.zeros(self.T)
         self.best_rewards = np.zeros(self.T)
+
+        # for model compatibility
+        self.N = nu
+        self.edge_probability = edge_probability
+        self.num_clusters = None
 
     def _beta(self, N, t):
         return np.sqrt(self.d * np.log(1 + N / self.d) + 4 * np.log(t) + np.log(2)) + 1
@@ -54,8 +59,8 @@ class Base:
 
 
 class LinUCB(Base):
-    def __init__(self, d, T):
-        super(LinUCB, self).__init__(d, T)
+    def __init__(self, d, T, nu=None, edge_probability=None):
+        super(LinUCB, self).__init__(d=d, T=T)
         self.S = np.eye(d)
         self.b = np.zeros(d)
         self.Sinv = np.eye(d)
@@ -104,7 +109,7 @@ class LinUCB_Cluster(Base):
 
 class LinUCB_IND(Base):
     # each user is an independent LinUCB
-    def __init__(self, nu, d, T):
+    def __init__(self, nu, d, T, edge_probability=None):
         super(LinUCB_IND, self).__init__(d, T)
         self.S = {i: np.eye(d) for i in range(nu)}
         self.b = {i: np.zeros(d) for i in range(nu)}

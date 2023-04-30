@@ -21,14 +21,14 @@ class Cluster:
 
 
 class SCLUB(LinUCB_IND):
-    def __init__(self, nu, d, num_stages):
-        super(SCLUB, self).__init__(nu, d, 2 ** num_stages - 1)
+    def __init__(self, nu, d, T, edge_probability=None):
+        super(SCLUB, self).__init__(nu, d, T)
 
         self.clusters = {0: Cluster(users=[i for i in range(nu)], S=np.eye(d), b=np.zeros(d), N=0,
                                     checks={i: False for i in range(nu)})}
         self.cluster_inds = np.zeros(nu)
 
-        self.num_stages = num_stages
+        self.num_stages = int(np.log2(T+1))
         # self.alpha = 4 * np.sqrt(d)
         # self.alpha_p = np.sqrt(4) # 2
         self.num_clusters = np.ones(self.T)
