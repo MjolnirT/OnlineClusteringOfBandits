@@ -43,7 +43,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
     # under "arbitrary" setting
 
     path = 'dataset/'
-    model_names = ['club', 'linucb', 'linucb_ind', 'sclub']
+    model_names = ['club', 'linucb', 'ind', 'sclub']
     models = [CLUB, LinUCB, LinUCB_IND, SCLUB]
     # iterate over three environments
     for dist_idx in np.array(pj):
@@ -64,7 +64,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
 
 if __name__ == "__main__":
     # synthetic experiment with user number is 10**3 and m=10 clusters
-    main(num_stages=10, num_users=1000, d=20, m=10, L=20, pj=[0])
+    main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0])
 
     # Using SVD
     # main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='ml_1000user_d20.npy')
