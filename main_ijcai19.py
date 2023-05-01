@@ -1,9 +1,8 @@
 import numpy as np
 import time
 import random
-from scipy.stats import ortho_group
 from CLUB import CLUB
-from BASE import LinUCB, LinUCB_IND, LinUCB_Cluster
+from BASE import LinUCB, LinUCB_IND
 from SCLUB import SCLUB
 from ENVIRONMENT import Environment
 from utlis import edge_probability
@@ -25,7 +24,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
         # print([np.linalg.norm(theta[0]-theta[i]) for i in range(num_users)])
     else:
         theta = np.load(filename)
-
+    filename = filename.split('/')[-1]
     # set up frequency vector
     user_dist = ['uniform', 'half', 'arbitrary']
 
@@ -45,6 +44,7 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
     path = 'dataset/'
     model_names = ['club', 'linucb', 'ind', 'sclub']
     models = [CLUB, LinUCB, LinUCB_IND, SCLUB]
+
     # iterate over three environments
     for dist_idx in np.array(pj):
         print("(Env)" + user_dist[dist_idx])
@@ -55,21 +55,24 @@ def main(num_stages, num_users, d, m, L, pj, filename=''):
             print("(model) Running " + model_name)
             start_time = time.time()
 
-            model = models[model_idx](nu=num_users, d=d, T=2 ** num_stages - 1, edge_probability=edge_probability(num_users))
+            model = models[model_idx](nu=num_users, d=d, T=2 ** num_stages - 1,
+                                      edge_probability=edge_probability(num_users))
             model.run(envir)
-            out_filename = path + model_name + '_' + user_dist[dist_idx] + '-' + filename[0:2] + '-' + 'kmeans'
+            out_filename = path + model_name + '_' + user_dist[dist_idx] + '-' + filename.split('_')[0] + '-' + 'kmeans'
             run_time = time.time() - start_time
             np.savez(out_filename, seed, model.rewards, model.best_rewards, run_time, model.num_clusters)
 
 
 if __name__ == "__main__":
     # synthetic experiment with user number is 10**3 and m=10 clusters
-    main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0])
+    num_stages = 18
+    # main(num_stages=num_stages, num_users=1000, d=20, m=10, L=20, pj=[0])
 
     # Using SVD
-    # main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='ml_1000user_d20.npy')
-    # main(num_stages=15, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='yelp_1000user_d20.npy')
+    main(num_stages=num_stages, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='dataset/ml_1000user_d20.npy')
+    main(num_stages=num_stages, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='dataset/yelp_1000user_d20.npy')
 
     # Using kmeans
-    # main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='ml_1000user_d20_m10.npy')
-    # main(num_stages = 15, num_users = 1000, d = 20, m = 10, L = 20, pj = [0,2], filename='yelp_1000user_d20_m10.npy')
+    main(num_stages=num_stages, num_users=1000, d=20, m=10, L=20, pj=[0, 2], filename='dataset/ml_1000user_d20_m10.npy')
+    main(num_stages=num_stages, num_users=1000, d=20, m=10, L=20, pj=[0, 2],
+         filename='dataset/yelp_1000user_d20_m10.npy')

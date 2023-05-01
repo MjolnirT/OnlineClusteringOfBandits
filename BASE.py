@@ -1,6 +1,5 @@
 import numpy as np
-from utlis import isInvertible
-import random
+
 
 
 class Base:
@@ -18,6 +17,8 @@ class Base:
         self.num_clusters = None
 
     def _beta(self, N, t):
+        if t == 0:
+            t = 1
         return np.sqrt(self.d * np.log(1 + N / self.d) + 4 * np.log(t) + np.log(2)) + 1
 
     def _select_item_ucb(self, S, Sinv, theta, items, N, t):
